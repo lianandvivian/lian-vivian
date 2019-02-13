@@ -1,0 +1,77 @@
+﻿<html>
+<head>
+<title>JS倒计时（无视刷新）</title>
+ 
+<style>
+.disabled {
+    background: #fff;
+    color: #ccc;
+    border: solid 0px;
+}
+.disabled:hover {
+     background:none;
+      color: #ccc;
+}
+</style>
+</head>
+<body>
+ 
+<input type="tel" placeholder="请输入手机号" name="Phone">
+<a class="fasong" id="btnSend" style="cursor:pointer;">发送验证码</a>
+</body>
+ 
+<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://cdn.bootcss.com/jquery-cookie/1.4.1/jquery.cookie.js"></script>
+<script language="javascript">
+ 
+$(function () {
+  //点击发送验证码
+    $('body').on('click', '#btnSend', function () {
+          $('body').off('click', '#btnSend');
+          LockButton('#btnSend', 60);
+      })
+       
+    //读取cookie
+    if ($.cookie("djsendtime") != undefined && !isNaN($.cookie("djsendtime"))) {  //读取到了cookie值
+        var djsendtime = $.cookie("djsendtime");
+        var now = new Date().getTime();  //当前时间戳
+        var locksecends = parseInt((djsendtime - now) / 1000);
+        if (locksecends <= 0) {
+            $.cookie("djsendtime", null);
+        } else {
+            LockButton('#btnSend', locksecends);
+        }
+    }
+  
+})
+ 
+// 按钮倒计时
+var LockButton = function (btnObjId, locksecends) {
+    //1.获取当前系统时间
+    //2.获取 locksecends 后的系统时间
+    //3.用cookie保存到期时间
+    //4.每次加载后获取cookie中保存的时间
+    //5.用到期时间减去当前时间获取倒计时
+    var djsendtime = $.cookie("djsendtime");
+    if (djsendtime == null || djsendtime == undefined || djsendtime == 'undefined' || djsendtime == 'null') {
+        var now = new Date().getTime();  //当前时间戳
+        var endtime = locksecends * 1000 + now;  //结束时间戳
+        $.cookie("djsendtime", endtime);  //将结束时间保存到cookie
+    }
+    $(btnObjId).addClass('disabled').attr('disabled', 'disabled').text('(' + locksecends + ')秒后重新获取');
+    $('body').off('click', '#btnSendSMS');
+    var timer = setInterval(function () {
+        locksecends--;
+        $(btnObjId).text('(' + locksecends + ')秒后重新获取');
+        if (locksecends <= 0) {
+        //倒计时结束清除cookie值
+            $.cookie("djsendtime", null);
+            $(btnObjId).removeClass('disabled').removeAttr('disabled').text('重新获取');
+            $('body').on('click', btnObjId);
+            clearInterval(timer);
+        }
+    }, 1000);
+};
+</script>
+ 
+</html>
