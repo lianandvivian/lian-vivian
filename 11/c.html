@@ -1,77 +1,90 @@
-﻿<html>
+﻿<!DOCTYPE html>
+<html lang="en">
 <head>
-<title>JS倒计时（无视刷新）</title>
+    <meta charset="UTF-8">
+    <title>倒计时示例</title>
+    <style>
+        .send {
+            width: 150px;
+            height: 30px;
+            line-height: 30px;
+            margin: 0 auto;
+            cursor: pointer;
+            background: #65be2e;
+            color: #fff;
+        }
  
-<style>
-.disabled {
-    background: #fff;
-    color: #ccc;
-    border: solid 0px;
-}
-.disabled:hover {
-     background:none;
-      color: #ccc;
-}
-</style>
+        #send:hover {
+            background: green;
+        }
+        .disabled {
+            background: gray;
+            color: #fff;
+            cursor: default;
+            pointer-events: none;
+        }
+    </style>
+    <script type="text/javascript" src="/Public/study/js/jquery-3.1.1.min.js"></script>
+    <script>
+        var t1;
+        var time;
+        $(function () {
+            $.ajax({
+                url: '/index.php/word/review/getTime',
+                type: 'post',
+                dataType: 'html',
+                data: {'time': time},
+                async: true,
+                success: function (data) {
+                    time = data;
+                    if (time > 60) {
+                        clearInterval(t1);
+                        $("#send").removeClass('disabled');
+                        $("#send").html('发送');
+                        $("#time").html(60);
+                    } else {
+                        setTime(time);
+                    }
+                }
+            });
+            $("#send").on('click', function () {
+                $.ajax({
+                    url: '/index.php/word/review/getTime',
+                    type: 'post',
+                    dataType: 'html',
+                    async: true,
+                    data: {'time': 200},
+                    success: function () {
+                        var second = 60;
+                        setTime(second);
+                    }
+                });
+ 
+            });
+ 
+            function setTime(second) {
+                $("#send").addClass('disabled');
+                t1 = setInterval(function () {
+                    second--;
+                    if (second <= 0) {
+                        clearInterval(t1);
+                        $("#send").removeClass('disabled');
+                        $("#send").html('发送');
+                        $("#time").html(second);
+                    } else {
+                        $("#send").html(second + 's后重试');
+                        $("#time").html(second);
+                    }
+                }, 1000);
+            }
+        });
+    </script>
 </head>
 <body>
+<div style="width: 500px;height: 200px;border: 1px solid #65be2e; margin: 200px auto;text-align: center;">
+    <p><span>倒计时：</span><b id="time"></b> <span> s </span></p>
+    <p id="send" class="send"></p>
+</div>
  
-<input type="tel" placeholder="请输入手机号" name="Phone">
-<a class="fasong" id="btnSend" style="cursor:pointer;">发送验证码</a>
 </body>
- 
-<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
-<script src="https://cdn.bootcss.com/jquery-cookie/1.4.1/jquery.cookie.js"></script>
-<script language="javascript">
- 
-$(function () {
-  //点击发送验证码
-    $('body').on('click', '#btnSend', function () {
-          $('body').off('click', '#btnSend');
-          LockButton('#btnSend', 60);
-      })
-       
-    //读取cookie
-    if ($.cookie("djsendtime") != undefined && !isNaN($.cookie("djsendtime"))) {  //读取到了cookie值
-        var djsendtime = $.cookie("djsendtime");
-        var now = new Date().getTime();  //当前时间戳
-        var locksecends = parseInt((djsendtime - now) / 1000);
-        if (locksecends <= 0) {
-            $.cookie("djsendtime", null);
-        } else {
-            LockButton('#btnSend', locksecends);
-        }
-    }
-  
-})
- 
-// 按钮倒计时
-var LockButton = function (btnObjId, locksecends) {
-    //1.获取当前系统时间
-    //2.获取 locksecends 后的系统时间
-    //3.用cookie保存到期时间
-    //4.每次加载后获取cookie中保存的时间
-    //5.用到期时间减去当前时间获取倒计时
-    var djsendtime = $.cookie("djsendtime");
-    if (djsendtime == null || djsendtime == undefined || djsendtime == 'undefined' || djsendtime == 'null') {
-        var now = new Date().getTime();  //当前时间戳
-        var endtime = locksecends * 1000 + now;  //结束时间戳
-        $.cookie("djsendtime", endtime);  //将结束时间保存到cookie
-    }
-    $(btnObjId).addClass('disabled').attr('disabled', 'disabled').text('(' + locksecends + ')秒后重新获取');
-    $('body').off('click', '#btnSendSMS');
-    var timer = setInterval(function () {
-        locksecends--;
-        $(btnObjId).text('(' + locksecends + ')秒后重新获取');
-        if (locksecends <= 0) {
-        //倒计时结束清除cookie值
-            $.cookie("djsendtime", null);
-            $(btnObjId).removeClass('disabled').removeAttr('disabled').text('重新获取');
-            $('body').on('click', btnObjId);
-            clearInterval(timer);
-        }
-    }, 1000);
-};
-</script>
- 
 </html>
