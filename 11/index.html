@@ -159,7 +159,6 @@ oncut="return false;" >
 						<li id="nav2"><img src="images/nav2.png" alt=""><span>恋爱历程</span>						</li>
 						<li id="nav3"><img src="images/nav3.png" alt=""><span>絮叨絮叨</span></li>
 						<li id="nav4"><img src="images/nav4.png" alt=""><span>哈哈哈</span></li>
-
 						<li id="nav5"><img src="images/nav5.png" alt=""><span>爱的映像</span></li>
 						<li id="nav6"><img src="images/nav6.png" alt=""><span>时光沙漏</span></li>
 					</ul>
@@ -320,8 +319,12 @@ $(window).load(function() {
 <script type="text/javascript">//修改时光沙漏时间
     var offsetX = $("#loveHeart").width() / 2;
     var offsetY = $("#loveHeart").height() / 2 - 55;
-    var together = new Date().toLocaleString();
-    
+    var together = new Date();
+    together.setFullYear(2019, 02, 14);
+    together.setHours(20);
+    together.setMinutes(0);
+    together.setSeconds(0);
+    together.setMilliseconds(0);
 
         setTimeout(function () {
             adjustWordsPosition();
